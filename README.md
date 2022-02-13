@@ -8,7 +8,11 @@ I have used all the main web app tools learned in CS50 (CSS, JavaScript, SQL, Fl
 
 
 The program has an application.py where the backend logic is build.
-I then has the different html screens saved on the templates folder.
+I then has the different html screens saved on the templates folder. There are 3 main screen developed:
+- index.html: where the basic summary of each customer is showed.
+- login.html: where the login logic is build.
+- social.html: where you can see a comparison of the performance of all users in the app.
+
 I have tried to put duplicated logic all together in helper functions that are saved in the static folder and the helpers.py doc.
 
 Thank you
