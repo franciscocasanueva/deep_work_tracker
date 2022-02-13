@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import datetime
 
-from helpers import login_required, get_unique, rolling_sum, pull_dataset
+from project.static.helpers import login_required, get_unique, rolling_sum, pull_dataset
 
 # Configure application
 app = Flask(__name__)
