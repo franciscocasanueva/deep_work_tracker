@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}
+index
+{% endblock %}
+
+{% block main %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+    <canvas id="lineChart"></canvas>
+    <script>
+        var dataset = {{ dataset | safe }}
+        var ctx = document.getElementById('lineChart');
+        var lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [
+                {
+                    label: 'Daily minutes',
+                    data: dataset['dw_minutes'],
+                    borderWidth: 1,
+                    showLine: false,
+                    pointBackgroundColor: LightenColor(googleColourPalette[0], 30),
+                    backgroundColor: LightenColor(googleColourPalette[0], 30)
+                },
+                {
+                    label: 'Last 7 days average',
+                    data: dataset['seven_day_average'],
+                    borderWidth: 1,
+                    lineTension: 0.4,
+                    pointRadius: 0,
+                    borderColor: googleColourPalette[0],
+                    backgroundColor: googleColourPalette[0]
+                }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero:true
+                    }
+                },
+                plugins:{
+                    legend:{
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    </script>
+<div>
+
+
+<main class="container py-5 text-center">
+    <table class="table table-sm">
+    {# TODO: Make sessions table prettier #}
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Sessions</th>
+            <th>Edit Sessions</th>
+        </tr>
+    </thead>
+    {% for label, session in labels|reverse|zip(dataset['dw_minutes']|reverse) %}
+        <p>
+            <tr>
+                    <th>{{ label }}</th>
+                    <td>{{ session }}</td>
+                    <td>
+                        <button id=editSessionButton{{loop.index}} onclick="loadSessionRequestForm({{loop.index}})" type="button" class="btn btn-primary">+</button>
+                        {# TODO: Reduce the size of this form when It shows. #}
+                        <form id=editRequest{{loop.index}} style="display:none;" action="/editSessions" method="post">
+                                    <input name="date" type="hidden" value="{{label}}" >
+                                    <div class="input-group">
+                                        <input autocomplete="off" name="sessions" placeholder="Sessions" type="text" class="form-control mx-1 w-4" autofocus>
+                                        <input type="submit" value="Save" class="form-control mx-1 w-4">
+                                    </div>
+                        </form>
+                    <td>
+            </tr>
+        </p>
+    {% endfor %}
+    </table>
+</main>
+{% endblock %}
+

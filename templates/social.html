@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+index
+{% endblock %}
+
+{% block main %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+    <canvas id="lineChart"></canvas>
+    <script>
+
+        var datasets = {{ datasets | safe }}
+
+        var ctx = document.getElementById('lineChart');
+        var GraphDatasetsArray = [];
+        var datasetsLen = datasets.length
+
+        for (i=0; i < datasetsLen; i++)
+        {
+            var DataArray = datasets[i];
+            GraphDatasetsArray[i] = {
+                label: DataArray['label'],
+                data: DataArray['seven_day_average'],
+                fill: false,
+                borderColor: googleColourPalette[i],
+                backgroundColor: googleColourPalette[i],
+                pointBackgroundColor: '#ffffff',
+                lineTension: 0.4,
+            }
+
+        }
+
+        var lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ labels | safe }},
+                datasets: GraphDatasetsArray
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {beginAtZero:true}
+                },
+                plugins:{
+                    legend:{
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    </script>
+<div>
+{% endblock %}
+
