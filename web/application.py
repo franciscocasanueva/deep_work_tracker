@@ -1,11 +1,9 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import datetime
-
-from project.static.helpers import login_required, get_unique, rolling_sum, pull_dataset
+from web.static.helpers import login_required, pull_dataset
 
 # Configure application
 app = Flask(__name__)
