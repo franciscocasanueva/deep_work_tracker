@@ -1,4 +1,7 @@
 Flask
-cs50
 flask_session
 werkzeug
+Flask-SQLAlchemy==2.5.1
+SQLAlchemy==1.4.31
+psycopg2==2.9.3
+
