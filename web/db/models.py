@@ -7,13 +7,14 @@ class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100))
-    hash = db.Column(db.Integer)
+    hash = db.Column(db.String(500))
     user_created_at = db.Column(db.DateTime)
 
 
 class Sessions(db.Model):
     __tablename__ = 'sessions'
     sess_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
     sess_datetime = db.Column(db.Date)
     number_sessions = db.Column(db.Integer)
 

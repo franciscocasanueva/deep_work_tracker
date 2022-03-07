@@ -44,35 +44,38 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
     From a list of users pull working minutes dataset
     """
     if not users:
-        rows = conn.execute(
+        result = conn.execute(
             """
             SELECT distinct(id) as user_id
             FROM users;
         """)
-        users = [x['user_id'] for x in rows]
+        users = [dict(row) for row in result.fetchall()]
+        users = [x['user_id'] for x in users]
 
     # Format inputs for query
     users = [str(x) for x in users]
     users = "('" + "', '".join(users) + "')"
     days_to_pull_with_buffer = days_to_pull + rolling_sum_window
 
-    rows = conn.execute(
+    result = conn.execute(
         """
-            SELECT username, calendar.d as date, coalesce(sum(number_sessions),0) as number_sessions
+            SELECT username, calendar.date as date, coalesce(sum(number_sessions),0) as number_sessions
             FROM calendar
             CROSS JOIN users
-            left join sessions as s on calendar.d = sess_datetime and users.id = s.user_id
+            left join sessions as s on calendar.date = sess_datetime and users.id = s.user_id
             WHERE
-                calendar.d > date('now','-{} day')
-                and calendar.d <= date('now')
+                calendar.date > current_date - interval '{}' day
+                and calendar.date <= current_date
                 and users.id in {}
-            GROUP BY user_created_at, username, calendar.d
-            ORDER BY user_created_at asc, username, calendar.d ASC
+            GROUP BY user_created_at, username, calendar.date
+            ORDER BY user_created_at asc, username, calendar.date ASC
         """.format(days_to_pull_with_buffer, users)
     )
 
+    rows = [dict(row) for row in result.fetchall()]
+
     usernames = get_unique([x['username'] for x in rows])
-    labels = get_unique([x['date'] for x in rows])[-days_to_pull:]
+    labels = get_unique([x['date'].strftime('%Y-%m-%d') for x in rows])[-days_to_pull:]
 
     datasets = []
     for username in usernames:

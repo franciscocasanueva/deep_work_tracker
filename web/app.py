@@ -43,7 +43,6 @@ def index():
     """Show work summary"""
 
     labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7, users=[session['user_id']])
-    print(datasets)
     return render_template("index.html", labels=labels, dataset=datasets[0])
 
 
@@ -71,7 +70,9 @@ def login():
             return redirect('/login')
 
         # Query database for username
-        rows = conn.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        username = request.form.get("username")
+        result = conn.execute(f"SELECT * FROM users WHERE username = '{username}'")
+        rows = [dict(row) for row in result.fetchall()]
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -95,7 +96,8 @@ def register():
             return redirect('/register')
 
         user_name = request.form.get("username")
-        same_name = conn.execute("SELECT id FROM users WHERE username = ?", user_name)
+        result = conn.execute(f"SELECT id FROM users WHERE username = '{user_name}'")
+        same_name  = [dict(row) for row in result.fetchall()]
 
         if len(same_name) != 0:
             flash("username taken")
@@ -115,8 +117,7 @@ def register():
         hash = generate_password_hash(password)
         username = request.form.get("username")
 
-        conn.execute("INSERT INTO users (username, hash, 	user_created_at)  VALUES (?, ?, CURRENT_TIMESTAMP)",
-                     username, hash)
+        conn.execute(f"INSERT INTO users (username, hash, 	user_created_at)  VALUES ('{username}', '{hash}', CURRENT_TIMESTAMP)")
         return redirect('/login')
 
     return render_template("register.html")
@@ -146,9 +147,8 @@ def editSessions():
         return redirect('/')
 
     request.form.get("sessions")
-    conn.execute("DELETE FROM sessions where user_id = ? and sess_datetime = ?", user_id, date)
-    conn.execute("INSERT INTO sessions (user_id, sess_datetime, number_sessions)  VALUES (?, ?, ?)", user_id, date,
-                 sessions)
+    conn.execute(f"DELETE FROM sessions where user_id = '{user_id}' and sess_datetime = '{date}'")
+    conn.execute(f"INSERT INTO sessions (user_id, sess_datetime, number_sessions)  VALUES ('{user_id}', '{date}', '{sessions}')")
 
     return redirect("/")
 
