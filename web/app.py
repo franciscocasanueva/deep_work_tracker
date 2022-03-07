@@ -1,12 +1,16 @@
-from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from static.helpers import login_required, pull_dataset
+from db.db_tools import create_app
+from db import config
+
+from sqlalchemy import create_engine
+from db.models import Users, Sessions, Calendar
 
 # Configure application
-app = Flask(__name__)
+app = create_app(__name__)
 
 # Add jinja zip option for multiple iterables
 app.jinja_env.filters['zip'] = zip
@@ -19,8 +23,8 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///deep.db")
+engine = create_engine(config.DATABASE_CONNECTION_URI)
+conn = engine.connect()
 
 
 # TODO: Test the impact of this response changes
@@ -32,18 +36,13 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+
 @app.route("/")
 @login_required
 def index():
     """Show work summary"""
 
-    labels, datasets = pull_dataset(
-        db=db,
-        days_to_pull=14,
-        rolling_sum_window=7,
-        users=[session['user_id']]
-        )
-    print(datasets)
+    labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7, users=[session['user_id']])
     return render_template("index.html", labels=labels, dataset=datasets[0])
 
 
@@ -51,11 +50,9 @@ def index():
 @login_required
 def social():
     """Show social work summary"""
-    labels, datasets = pull_dataset(db=db, days_to_pull=14, rolling_sum_window=7)
+    labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7)
 
     return render_template("social.html", labels=labels, datasets=datasets)
-
-
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -67,27 +64,27 @@ def login():
             flash("must provide username")
             return redirect('/login')
 
-
-
         # Ensure password was submitted
         elif not request.form.get("password"):
             flash("must provide password")
             return redirect('/login')
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        username = request.form.get("username")
+        result = conn.execute(f"SELECT * FROM users WHERE username = '{username}'")
+        rows = [dict(row) for row in result.fetchall()]
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
             flash("invalid username and/or password")
             return redirect('/login')
 
-
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
         return redirect("/")
 
     return render_template("login.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -98,9 +95,9 @@ def register():
             flash("must provide username")
             return redirect('/register')
 
-
         user_name = request.form.get("username")
-        same_name = db.execute("SELECT id FROM users WHERE username = ?", user_name)
+        result = conn.execute(f"SELECT id FROM users WHERE username = '{user_name}'")
+        same_name  = [dict(row) for row in result.fetchall()]
 
         if len(same_name) != 0:
             flash("username taken")
@@ -120,7 +117,7 @@ def register():
         hash = generate_password_hash(password)
         username = request.form.get("username")
 
-        db.execute("INSERT INTO users (username, hash, 	user_created_at)  VALUES (?, ?, CURRENT_TIMESTAMP)", username, hash)
+        conn.execute(f"INSERT INTO users (username, hash, 	user_created_at)  VALUES ('{username}', '{hash}', CURRENT_TIMESTAMP)")
         return redirect('/login')
 
     return render_template("register.html")
@@ -134,13 +131,14 @@ def logout():
     session.clear()
     return redirect("/")
 
+
 @app.route("/editSessions", methods=['POST'])
 def editSessions():
     """Edit Session number"""
     user_id = session['user_id']
     date = request.form.get("date")
     sessions = request.form.get("sessions")
-    if sessions.isnumeric() == False:
+    if not sessions.isnumeric():
         flash("sessions must be a number greater than 0")
         return redirect('/')
 
@@ -149,10 +147,11 @@ def editSessions():
         return redirect('/')
 
     request.form.get("sessions")
-    db.execute("DELETE FROM sessions where user_id = ? and sess_datetime = ?", user_id, date)
-    db.execute("INSERT INTO sessions (user_id, sess_datetime, number_sessions)  VALUES (?, ?, ?)", user_id, date, sessions)
+    conn.execute(f"DELETE FROM sessions where user_id = '{user_id}' and sess_datetime = '{date}'")
+    conn.execute(f"INSERT INTO sessions (user_id, sess_datetime, number_sessions)  VALUES ('{user_id}', '{date}', '{sessions}')")
 
     return redirect("/")
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
