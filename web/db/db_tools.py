@@ -19,6 +19,11 @@ def get_all(model):
     return data
 
 
+def get_with_where(model):
+    data = model.select().where
+    return data
+
+
 def add_instance(model, **kwargs):
     instance = model(**kwargs)
     db.session.add(instance)

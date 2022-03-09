@@ -62,7 +62,7 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
             SELECT username, calendar.date as date, coalesce(sum(number_sessions),0) as number_sessions
             FROM calendar
             CROSS JOIN users
-            left join sessions as s on calendar.date = sess_datetime and users.id = s.user_id
+            left join sessions as s on calendar.date = sess_date and users.id = s.user_id
             WHERE
                 calendar.date > current_date - interval '{}' day
                 and calendar.date <= current_date

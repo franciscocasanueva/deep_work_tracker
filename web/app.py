@@ -4,10 +4,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from static.helpers import login_required, pull_dataset
 from db.db_tools import create_app
-from db import config
+from db import config, db_tools, models
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
+from sqlalchemy.sql import and_
 from db.models import Users, Sessions, Calendar
+
+from datetime import datetime
 
 # Configure application
 app = create_app(__name__)
@@ -71,7 +74,9 @@ def login():
 
         # Query database for username
         username = request.form.get("username")
-        result = conn.execute(f"SELECT * FROM users WHERE username = '{username}'")
+
+        qry = select(Users).where(Users.username == username)
+        result = conn.execute(qry)
         rows = [dict(row) for row in result.fetchall()]
 
         # Ensure username exists and password is correct
@@ -96,8 +101,9 @@ def register():
             return redirect('/register')
 
         user_name = request.form.get("username")
-        result = conn.execute(f"SELECT id FROM users WHERE username = '{user_name}'")
-        same_name  = [dict(row) for row in result.fetchall()]
+        qry = select(Users).where(Users.username == user_name)
+        result = conn.execute(qry)
+        same_name = [dict(row) for row in result.fetchall()]
 
         if len(same_name) != 0:
             flash("username taken")
@@ -117,7 +123,13 @@ def register():
         hash = generate_password_hash(password)
         username = request.form.get("username")
 
-        conn.execute(f"INSERT INTO users (username, hash, 	user_created_at)  VALUES ('{username}', '{hash}', CURRENT_TIMESTAMP)")
+        db_tools.add_instance(
+            Users,
+            username=username,
+            hash=hash,
+            user_created_at=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        )
+
         return redirect('/login')
 
     return render_template("register.html")
@@ -147,8 +159,26 @@ def editSessions():
         return redirect('/')
 
     request.form.get("sessions")
-    conn.execute(f"DELETE FROM sessions where user_id = '{user_id}' and sess_datetime = '{date}'")
-    conn.execute(f"INSERT INTO sessions (user_id, sess_datetime, number_sessions)  VALUES ('{user_id}', '{date}', '{sessions}')")
+
+    # Delete old entry for that day
+    qry = select(Sessions.id).where(and_(user_id == user_id, Sessions.sess_date == date))
+    result = conn.execute(qry)
+    rows = [dict(row) for row in result.fetchall()]
+
+    if len(rows) == 1:
+        id_to_delete = rows[0]['id']
+        db_tools.delete_instance(
+            Sessions,
+            id_to_delete
+        )
+
+    # Add new entry for that date
+    db_tools.add_instance(
+        Sessions,
+        user_id=user_id,
+        sess_date=date,
+        number_sessions=sessions
+    )
 
     return redirect("/")
 

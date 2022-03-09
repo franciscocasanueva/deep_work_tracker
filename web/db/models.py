@@ -15,9 +15,9 @@ class Users(db.Model):
 
 class Sessions(db.Model):
     __tablename__ = 'sessions'
-    sess_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    sess_datetime = db.Column(db.Date)
+    sess_date = db.Column(db.Date)
     number_sessions = db.Column(db.Integer)
 
 
@@ -29,7 +29,7 @@ class Calendar(db.Model):
 
 def insert_calendar(target, connection, **kw):
     """
-    Make sure the calendar table is created the first time the model is run
+    Make sure the calendar table is created the first time the model is first created
     """
     connection.execute(
         """
