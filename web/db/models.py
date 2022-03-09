@@ -1,5 +1,7 @@
 import flask_sqlalchemy
 
+from sqlalchemy import event
+
 db = flask_sqlalchemy.SQLAlchemy()
 
 
@@ -23,3 +25,21 @@ class Calendar(db.Model):
     __tablename__ = 'calendar'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date)
+
+
+def insert_calendar(target, connection, **kw):
+    """
+    Make sure the calendar table is created the first time the model is run
+    """
+    connection.execute(
+        """
+        insert into calendar (id, date)
+        SELECT
+            ROW_NUMBER() over() as id,
+            CAST('2015-01-01' AS DATE) + (n || ' day')::INTERVAL as date
+        FROM    generate_series(0, 10000) n
+        """
+    )
+
+
+event.listen(Calendar.__table__, 'after_create', insert_calendar)
