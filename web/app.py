@@ -8,7 +8,7 @@ from db import config, db_tools, models
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.sql import and_
-from db.models import Users, Sessions, Calendar
+from db.models import Users, Daily_work, Calendar
 
 from datetime import datetime
 
@@ -144,40 +144,40 @@ def logout():
     return redirect("/")
 
 
-@app.route("/editSessions", methods=['POST'])
-def editSessions():
-    """Edit Session number"""
+@app.route("/editMinutes", methods=['POST'])
+def editMinutes():
+    """Edit Minutes number"""
     user_id = session['user_id']
     date = request.form.get("date")
-    sessions = request.form.get("sessions")
-    if not sessions.isnumeric():
-        flash("sessions must be a number greater than 0")
+    minutes = request.form.get("minutes")
+    if not minutes.isnumeric():
+        flash("Minutes must be a number greater than 0")
         return redirect('/')
 
-    if int(sessions) < 0:
-        flash("sessions must be a number greater than 0")
+    if int(minutes) < 0:
+        flash("Minutes must be a number greater than 0")
         return redirect('/')
 
-    request.form.get("sessions")
+    request.form.get("minutes")
 
     # Delete old entry for that day
-    qry = select(Sessions.id).where(and_(user_id == user_id, Sessions.sess_date == date))
+    qry = select(Daily_work.id).where(and_(user_id == user_id, Daily_work.dw_date == date))
     result = conn.execute(qry)
     rows = [dict(row) for row in result.fetchall()]
 
     if len(rows) == 1:
         id_to_delete = rows[0]['id']
         db_tools.delete_instance(
-            Sessions,
+            Daily_work,
             id_to_delete
         )
 
     # Add new entry for that date
     db_tools.add_instance(
-        Sessions,
+        Daily_work,
         user_id=user_id,
-        sess_date=date,
-        number_sessions=sessions
+        dw_date=date,
+        dw_minutes=minutes
     )
 
     return redirect("/")

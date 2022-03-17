@@ -13,12 +13,12 @@ class Users(db.Model):
     user_created_at = db.Column(db.DateTime)
 
 
-class Sessions(db.Model):
-    __tablename__ = 'sessions'
+class Daily_work(db.Model):
+    __tablename__ = 'daily_work'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    sess_date = db.Column(db.Date)
-    number_sessions = db.Column(db.Integer)
+    dw_date = db.Column(db.Date)
+    dw_minutes = db.Column(db.Integer)
 
 
 class Calendar(db.Model):

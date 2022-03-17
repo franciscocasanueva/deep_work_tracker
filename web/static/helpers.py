@@ -59,10 +59,10 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
 
     result = conn.execute(
         """
-            SELECT username, calendar.date as date, coalesce(sum(number_sessions),0) as number_sessions
+            SELECT username, calendar.date as date, coalesce(sum(dw_minutes),0) as dw_minutes
             FROM calendar
             CROSS JOIN users
-            left join sessions as s on calendar.date = sess_date and users.id = s.user_id
+            left join daily_work as s on calendar.date = dw_date and users.id = s.user_id
             WHERE
                 calendar.date > current_date - interval '{}' day
                 and calendar.date <= current_date
@@ -79,8 +79,7 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
 
     datasets = []
     for username in usernames:
-        dw_sessions = [x['number_sessions'] for x in rows if x['username'] == username]
-        dw_minutes = [x * 25 for x in dw_sessions]
+        dw_minutes = [x['dw_minutes'] for x in rows if x['username'] == username]
         seven_day_average = rolling_sum(dw_minutes, rolling_sum_window)
         dataset = {}
         dataset['label'] = username

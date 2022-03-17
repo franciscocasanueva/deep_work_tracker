@@ -61,8 +61,8 @@ index
     <thead>
         <tr>
             <th>Day</th>
-            <th>Sessions</th>
-            <th>Edit Sessions</th>
+            <th>Minutes</th>
+            <th>Edit minutes</th>
         </tr>
     </thead>
     {% for label, session in labels|reverse|zip(dataset['dw_minutes']|reverse) %}
@@ -73,10 +73,10 @@ index
                     <td>
                         <button id=editSessionButton{{loop.index}} onclick="loadSessionRequestForm({{loop.index}})" type="button" class="btn btn-primary">+</button>
                         {# TODO: Reduce the size of this form when It shows. #}
-                        <form id=editRequest{{loop.index}} style="display:none;" action="/editSessions" method="post">
+                        <form id=editRequest{{loop.index}} style="display:none;" action="/editMinutes" method="post">
                                     <input name="date" type="hidden" value="{{label}}" >
                                     <div class="input-group">
-                                        <input autocomplete="off" name="sessions" placeholder="Sessions" type="text" class="form-control mx-1 w-4" autofocus>
+                                        <input autocomplete="off" name="minutes" placeholder="Minutes" type="text" class="form-control mx-1 w-4" autofocus>
                                         <input type="submit" value="Save" class="form-control mx-1 w-4">
                                     </div>
                         </form>
