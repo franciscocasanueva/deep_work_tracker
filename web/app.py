@@ -44,7 +44,6 @@ def after_request(response):
 @login_required
 def index():
     """Show work summary"""
-
     labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7, users=[session['user_id']])
     return render_template("index.html", labels=labels, dataset=datasets[0])
 
@@ -54,7 +53,6 @@ def index():
 def social():
     """Show social work summary"""
     labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7)
-
     return render_template("social.html", labels=labels, datasets=datasets)
 
 
