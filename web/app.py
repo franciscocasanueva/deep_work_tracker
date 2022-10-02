@@ -52,8 +52,15 @@ def index():
 @login_required
 def social():
     """Show social work summary"""
-    labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7)
-    return render_template("social.html", labels=labels, datasets=datasets)
+    labels_14d, datasets_14d = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7)
+    labels_hist, datasets_hist = pull_dataset(conn=conn, days_to_pull=365, rolling_sum_window=90)
+    return render_template(
+        "social.html",
+        labels_14d=labels_14d,
+        datasets_14d=datasets_14d,
+        labels_hist=labels_hist,
+        datasets_hist=datasets_hist
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])

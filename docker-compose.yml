@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  db:
+    env_file: database.conf
+    image: postgres:latest
+#    ports:
+#      - "5432:5432"
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
   web:
     build: ./web
     depends_on:
@@ -14,11 +22,3 @@ services:
       - ./app:/usr/src/app
     restart: always
 
-  db:
-    env_file: database.conf
-    image: postgres:latest
-    ports:
-      - 5432:5432
-    restart: always
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data

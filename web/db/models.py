@@ -37,7 +37,7 @@ def insert_calendar(target, connection, **kw):
         SELECT
             ROW_NUMBER() over() as id,
             CAST('2015-01-01' AS DATE) + (n || ' day')::INTERVAL as date
-        FROM    generate_series(0, 10000) n
+        FROM    generate_series(0, 1000000) n
         """
     )
 
