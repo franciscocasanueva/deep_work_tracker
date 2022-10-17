@@ -132,7 +132,7 @@ def register():
             Users,
             username=username,
             hash=hash,
-            user_created_at=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            user_created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
 
         return redirect('/login')
