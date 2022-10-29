@@ -5,6 +5,8 @@ select user_id, count(*)
 from daily_work
 group by 1;
 
+select * from daily_work
+
 select *
 from calendar
 order by 2 asc --desc

@@ -166,9 +166,11 @@ def editMinutes():
     request.form.get("minutes")
 
     # Delete old entry for that day
-    qry = select(Daily_work.id).where(and_(user_id == user_id, Daily_work.dw_date == date))
+    print((user_id, date), flush=True)
+    qry = select(Daily_work.id).where(and_(Daily_work.user_id == user_id, Daily_work.dw_date == date))
     result = conn.execute(qry)
     rows = [dict(row) for row in result.fetchall()]
+    print(rows, flush=True)
 
     if len(rows) == 1:
         id_to_delete = rows[0]['id']
