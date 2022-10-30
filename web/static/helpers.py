@@ -58,18 +58,16 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
     days_to_pull_with_buffer = days_to_pull + rolling_sum_window
 
     result = conn.execute(
+        f"""            
+        SELECT username, calendar.date as date, coalesce(sum(dw_minutes), 0) as dw_minutes
+        FROM calendar
+                 CROSS JOIN (select id, username, user_created_at from users where id in {users}) as users
+                 left join daily_work as s on calendar.date = dw_date and users.id = s.user_id
+        WHERE calendar.date > current_date - interval '{days_to_pull_with_buffer}' day
+          and calendar.date <= current_date
+        GROUP BY user_created_at, username, calendar.date
+        ORDER BY user_created_at asc, username, calendar.date ASC;
         """
-            SELECT username, calendar.date as date, coalesce(sum(dw_minutes),0) as dw_minutes
-            FROM calendar
-            CROSS JOIN users
-            left join daily_work as s on calendar.date = dw_date and users.id = s.user_id
-            WHERE
-                calendar.date > current_date - interval '{}' day
-                and calendar.date <= current_date
-                and users.id in {}
-            GROUP BY user_created_at, username, calendar.date
-            ORDER BY user_created_at asc, username, calendar.date ASC
-        """.format(days_to_pull_with_buffer, users)
     )
 
     rows = [dict(row) for row in result.fetchall()]
