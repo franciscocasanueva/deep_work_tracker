@@ -9,7 +9,18 @@ select * from daily_work
 
 select *
 from calendar
-order by 2 asc --desc
+where calendar.date <= current_date
+order by 1 desc; --desc
+
+
+SELECT username, calendar.date as date, coalesce(sum(dw_minutes), 0) as dw_minutes
+FROM calendar
+         CROSS JOIN (select id, username, user_created_at from users where id in (1)) as users
+         left join daily_work as s on calendar.date = dw_date and users.id = s.user_id
+WHERE calendar.date > current_date - interval '5' day
+  and calendar.date <= current_date
+GROUP BY user_created_at, username, calendar.date
+ORDER BY user_created_at asc, username, calendar.date ASC;
 
 
 select
