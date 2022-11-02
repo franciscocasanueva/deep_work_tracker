@@ -1,6 +1,6 @@
 from flask import session, redirect
 import functools
-
+import time
 
 def login_required(f):
     """
@@ -57,14 +57,15 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
     users = "('" + "', '".join(users) + "')"
     days_to_pull_with_buffer = days_to_pull + rolling_sum_window
 
+    today_ts = time.strftime('%Y-%m-%d')
     result = conn.execute(
         f"""            
         SELECT username, calendar.date as date, coalesce(sum(dw_minutes), 0) as dw_minutes
         FROM calendar
                  CROSS JOIN (select id, username, user_created_at from users where id in {users}) as users
                  left join daily_work as s on calendar.date = dw_date and users.id = s.user_id
-        WHERE calendar.date > current_date - interval '{days_to_pull_with_buffer}' day
-          and calendar.date <= current_date
+        WHERE calendar.date > cast('{today_ts}' as date) - interval '{days_to_pull_with_buffer}' day
+          and calendar.date <= cast('{today_ts}' as date) 
         GROUP BY user_created_at, username, calendar.date
         ORDER BY user_created_at asc, username, calendar.date ASC;
         """
