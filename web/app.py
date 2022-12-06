@@ -47,7 +47,7 @@ def index():
     labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7, users=[session['user_id']])
     qry = select(Daily_work.last_update_dt).where(Daily_work.user_id == session['user_id'])
     result = conn.execute(qry)
-    last_update = max(result.fetchall())[0]
+    last_update = max(result.fetchall(), default=[0])[0]
     return render_template("index.html", labels=labels, dataset=datasets[0], last_update=last_update)
 
 
