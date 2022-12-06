@@ -19,6 +19,7 @@ class Daily_work(db.Model):
     user_id = db.Column(db.Integer)
     dw_date = db.Column(db.Date)
     dw_minutes = db.Column(db.Integer)
+    last_update_dt = db.Column(db.DateTime)
 
 
 class Calendar(db.Model):
