@@ -45,7 +45,10 @@ def after_request(response):
 def index():
     """Show work summary"""
     labels, datasets = pull_dataset(conn=conn, days_to_pull=14, rolling_sum_window=7, users=[session['user_id']])
-    return render_template("index.html", labels=labels, dataset=datasets[0])
+    qry = select(Daily_work.last_update_dt).where(Daily_work.user_id == session['user_id'])
+    result = conn.execute(qry)
+    last_update = max(result.fetchall())[0]
+    return render_template("index.html", labels=labels, dataset=datasets[0], last_update=last_update)
 
 
 @app.route("/social")
@@ -166,11 +169,9 @@ def editMinutes():
     request.form.get("minutes")
 
     # Delete old entry for that day
-    print((user_id, date), flush=True)
     qry = select(Daily_work.id).where(and_(Daily_work.user_id == user_id, Daily_work.dw_date == date))
     result = conn.execute(qry)
     rows = [dict(row) for row in result.fetchall()]
-    print(rows, flush=True)
 
     if len(rows) == 1:
         id_to_delete = rows[0]['id']
@@ -184,7 +185,9 @@ def editMinutes():
         Daily_work,
         user_id=user_id,
         dw_date=date,
-        dw_minutes=minutes
+        dw_minutes=minutes,
+        last_update_dt=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     )
 
     return redirect("/")
