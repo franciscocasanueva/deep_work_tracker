@@ -16,7 +16,7 @@ index
         var lineChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: {{ labels | safe }},
+                labels: dataset['x_labels'],
                 datasets: [
                 {
                     label: 'Daily minutes',
@@ -28,7 +28,7 @@ index
                 },
                 {
                     label: 'Last 7 days average',
-                    data: dataset['x_day_average'],
+                    data: movingAvg(dataset['dw_minutes'], 7, function(val){ return val != -1; }),
                     borderWidth: 1,
                     lineTension: 0.4,
                     pointRadius: 0,
