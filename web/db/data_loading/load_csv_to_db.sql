@@ -5,7 +5,12 @@ select user_id, count(*)
 from daily_work
 group by 1;
 
-select * from daily_work
+SELECT
+                    case when
+                        (select min(dw_date) from daily_work) < current_date
+                    then 365
+                    else current_date - (select min(dw_date) from daily_work) end
+                from users limit 1;
 
 select *
 from calendar
