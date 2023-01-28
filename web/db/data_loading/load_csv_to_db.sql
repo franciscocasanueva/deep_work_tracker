@@ -28,23 +28,18 @@ GROUP BY user_created_at, username, calendar.date
 ORDER BY user_created_at asc, username, calendar.date ASC;
 
 
-select
-    getid(),
-    1 as user_id,
-    day as dw_date,
-    paco as dw_minutes
-from bv_raw_data;
+SELECT case
+           when
+                   (select min(dw_date) from daily_work where user_id in (1)) < cast('2023-01-28' as date)
+               then 365
+           else
+                   cast('2023-01-28' as date) - (select min(dw_date) from daily_work where user_id in (1))
+           end as max_days_to_pull
+from users
+limit 1
 
-select * from bv_raw_data
 
 SELECT
-    4,
-    cast(day as date),
-    cast(tabixe as int)
---     cast(case
---         when coalesce(cutice, '') = '' then '0'
---         else cutice
---     end as int)
-FROM bv_raw_data
-
-delete from daily_work;
+    cast('2023-01-28' as date) - (select min(dw_date) from daily_work where user_id in (1))
+from users
+limit 1

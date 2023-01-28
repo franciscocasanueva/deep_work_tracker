@@ -46,13 +46,9 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
     if days_to_pull == 'max':
         get_max_days_to_pull = f"""
             SELECT
-                    case when 
-                        (select min(dw_date) from daily_work where user_id in {users}) < cast('{today_ts}' as date) 
-                    then 365 
-                    else 
-                        cast('{today_ts}' as date) - (select min(dw_date) from daily_work where user_id in {users}) 
-                    end as max_days_to_pull
-                from users limit 1"""
+                cast('2023-01-28' as date) - (select min(dw_date) from daily_work where user_id in (1)) as max_days_to_pull
+            from users
+            limit 1"""
         result = conn.execute(get_max_days_to_pull)
         rows = [dict(row) for row in result.fetchall()]
         days_to_pull = int(rows[0]['max_days_to_pull'])
