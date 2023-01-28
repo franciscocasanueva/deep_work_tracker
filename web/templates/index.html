@@ -13,14 +13,16 @@ index
     <script>
         var dataset = {{ dataset | safe }}
         var ctx = document.getElementById('lineChart');
+        var rolling_7_series = movingAvg(dataset['dw_minutes'], 7, function(val){ return val != -1; })
+        var dataset_dw_minutes = dataset['dw_minutes'].slice(-14)
         var lineChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dataset['x_labels'],
+                labels: dataset['x_labels'].slice(-14),
                 datasets: [
                 {
                     label: 'Daily minutes',
-                    data: dataset['dw_minutes'],
+                    data: dataset_dw_minutes.slice(-14),
                     borderWidth: 1,
                     showLine: false,
                     pointBackgroundColor: LightenColor(googleColourPalette[0], 30),
@@ -28,7 +30,7 @@ index
                 },
                 {
                     label: 'Last 7 days average',
-                    data: movingAvg(dataset['dw_minutes'], 7, function(val){ return val != -1; }),
+                    data: rolling_7_series.slice(-14),
                     borderWidth: 1,
                     lineTension: 0.4,
                     pointRadius: 0,
@@ -65,7 +67,7 @@ index
             <th>Edit minutes</th>
         </tr>
     </thead>
-    {% for label, session in labels|reverse|zip(dataset['dw_minutes']|reverse) %}
+    {% for label, session in labels[-14:]|reverse|zip(dataset['dw_minutes'][-14:]|reverse) %}
         <p>
             <tr>
                     <th>{{ label }}</th>
