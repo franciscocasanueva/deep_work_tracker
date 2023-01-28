@@ -88,6 +88,7 @@ function create_linechart(datasets, timeframe, ctx) {
                 backgroundColor: googleColourPalette[i],
                 pointBackgroundColor: '#ffffff',
                 lineTension: 0.4,
+                pointRadius: 0,
             }
         }
         var lineChart = new Chart(ctx, {
