@@ -48,7 +48,7 @@ def index():
     qry = select(Daily_work.last_update_dt).where(Daily_work.user_id == session['user_id'])
     result = conn.execute(qry)
     last_update = max(result.fetchall(), default=[0])[0]
-    return render_template("index.html", labels=datasets[0]['x_labels'], dataset=datasets[0], last_update=last_update)
+    return render_template("index.html", dataset=datasets[0], last_update=last_update)
 
 
 @app.route("/social")
