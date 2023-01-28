@@ -78,11 +78,9 @@ def pull_dataset(conn, days_to_pull, rolling_sum_window, users=None):
     datasets = []
     for username in usernames:
         dw_minutes = [x['dw_minutes'] for x in rows if x['username'] == username]
-        x_day_average = dw_minutes
         dataset = {
             'label': username,
             'dw_minutes': dw_minutes[-days_to_pull_with_buffer:],
-            'x_day_average': x_day_average[-days_to_pull_with_buffer:],
             'x_labels': x_labels
         }
         datasets.append(dataset)

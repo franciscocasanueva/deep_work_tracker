@@ -1,29 +1,27 @@
 {% extends "layout.html" %}
 
 {% block title %}
-social
+    social
 {% endblock %}
 
 {% block main %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container" style="padding-bottom:30px">
-    <canvas id="lineChart"></canvas>
+    <div class="container" style="padding-bottom:30px">
+        <canvas id="lineChart"></canvas>
+        <script>
+            ctx = document.getElementById('lineChart')
+            {#Roll data#}
+            var datasets_hist_rolled = roll_sum_series({{ datasets_hist | safe }}, 7)
+            {#Plot data#}
+            chart = create_linechart(datasets_hist_rolled, 14, ctx);
+        </script>
+    </div>
+    <button type="button" class="btn btn-primary" id="last_days_button">15 days</button>
     <script>
-        ctx = document.getElementById('lineChart')
-        {#Roll data#}
-        var datasets_hist_rolled = roll_sum_series({{ datasets_hist | safe }}, 7)
-        {#Plot data#}
-        chart = create_linechart(datasets_hist_rolled, 14, ctx);
-    </script>
-</div>
-<button type="button" class="btn btn-primary" id="last_days_button">15 days</button>
-<button type="button" class="btn btn-primary" id="one_year_button">1 year</button>
-<button type="button" class="btn btn-primary" id="five_years_button">5 years</button>
-<script>
-    last_days_button.addEventListener(
-        'click',
-        function () {
+        last_days_button.addEventListener(
+            'click',
+            function () {
                 chart.destroy()
                 ctx = document.getElementById('lineChart')
                 {#Roll data#}
@@ -31,10 +29,14 @@ social
                 {#Plot data#}
                 chart = create_linechart(datasets_hist_rolled, 14, ctx);
             }
-    );
-    one_year_button.addEventListener(
-        'click',
-         function () {
+        );
+    </script>
+
+    <button type="button" class="btn btn-primary" id="one_year_button">1 year</button>
+    <script>
+        one_year_button.addEventListener(
+            'click',
+            function () {
                 chart.destroy()
                 ctx = document.getElementById('lineChart')
                 {#Roll data#}
@@ -42,10 +44,14 @@ social
                 {#Plot data#}
                 chart = create_linechart(datasets_hist_rolled, 365, ctx);
             }
-    );
-    five_years_button.addEventListener(
-        'click',
-         function () {
+        );
+    </script>
+    <button type="button" class="btn btn-primary" id="five_years_button">5 years</button>
+    <script>
+
+        five_years_button.addEventListener(
+            'click',
+            function () {
                 chart.destroy()
                 ctx = document.getElementById('lineChart')
                 {#Roll data#}
@@ -53,7 +59,7 @@ social
                 {#Plot data#}
                 chart = create_linechart(datasets_hist_rolled, 1825, ctx);
             }
-    );
-</script>
+        );
+    </script>
 
 {% endblock %}
