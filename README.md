@@ -6,7 +6,6 @@ I have created this web app to be able to record the number of daily 25 minutes 
 
 I have used all the main web app tools learned in CS50 (CSS, JavaScript, SQL, Flask, Html). On top of this I have added the javasript chart library chart.js.
 
-
 The program has an application.py where the backend logic is build.
 I then has the different html screens saved on the templates folder. There are 3 main screen developed:
 - index.html: where the basic summary of each customer is showed.
@@ -16,15 +15,10 @@ I then has the different html screens saved on the templates folder. There are 3
 
 I have tried to put duplicated logic all together in helper functions that are saved in the static folder containing contants.js, favicon.ico, styles.css tools.js and the helpers.py doc.
 
-All the information is saved locally in a database file called deep.db
+The application runs on a docker container in AWS with a postgres DB in the back end.
 
-My plan now is to keep developing this app putting it online and mantaining It adding frequently new features. Initially I am looking to move the database to AWS, put the app in a docker container, deploy a haroku server. After that I will lauch the app to my close friends and start working with their feedback on improving the functionalities It has.
-
-The main functionalities I have decided I want to add are:
+The main functionalities I still want to add are:
 - Friendship logic (request, accept, suggestions)
-- Historic deep work view
-- Load Sheets data into the app
-- Think more clearly about how customers register their time worked
 - Chronometer with add feature issue.
 
 Cal Newport Deep work inspiration:
